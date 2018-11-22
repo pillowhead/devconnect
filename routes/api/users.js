@@ -13,7 +13,7 @@ const User = require("../../models/User");
 // @access  Public
 router.get("/test", (req, res) => res.json({ msg: "Users Works" }));
 
-// @route   GET api/users/register
+// @route   POST api/users/register
 // @desc    Register users route
 // @access  Public
 router.post("/register", (req, res) => {
@@ -48,7 +48,7 @@ router.post("/register", (req, res) => {
   });
 });
 
-// @router  GET api/users/login
+// @router  POST api/users/login
 // @desc    Login User / Returning JWT(json web token) Token
 // @access  Public
 router.post("/login", (req, res) => {
@@ -65,12 +65,22 @@ router.post("/login", (req, res) => {
     // Check Password
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
-        //res.json({ msg: "Success" });
+        // TESTED res.json({ msg: "Success" });
         // User Matched
         const payload = { id: user.id, name: user.name, avatar: user.avatar }; // Create JWT Payload
 
         // Sign Token
-        jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, () => {});
+        jwt.sign(
+          payload,
+          keys.secretOrKey,
+          { expiresIn: 3600 },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token
+            });
+          }
+        );
       } else {
         return res.status(400).json({ password: "Password incorrect" });
       }
